@@ -27,7 +27,6 @@ Ngoài ra, tôi cũng hiểu rõ hơn về cơ chế **Reciprocal Rank Fusion (R
 
 Điều khiến tôi ngạc nhiên nhất chính là **"Nghịch lý của sự phức tạp" (Complexity Paradox)**. Trong quá trình đánh giá A/B, tôi đã rất sốc khi thấy phiên bản Variant (có Hybrid Search) ban đầu lại cho kết quả **Completeness** tệ hơn bản Baseline đơn giản. Giả thuyết ban đầu của tôi là càng thêm nhiều kỹ thuật hiện đại thì kết quả phải càng tốt. Tuy nhiên thực tế cho thấy, việc kết hợp thêm BM25 mà không có Reranker đã làm "nhiễu" danh sách Top 3 kết quả, khiến AI nhận được những đoạn văn bản chứa nhiều từ khóa nhưng lại thiếu thông tin bao quát.
 
-Khó khăn lớn nhất về mặt kỹ thuật mà tôi gặp phải là lỗi **Memory Allocation (OOM)** khi máy tính không đủ RAM để tải model embedding local. Tôi đã phải linh hoạt chuyển đổi giữa việc giải cứu bộ nhớ ảo và cài đặt option sử dụng OpenAI Embeddings thông qua cấu hình `.env` để đảm bảo pipeline vẫn có thể chạy được trên các máy cấu hình thấp.
 
 ---
 

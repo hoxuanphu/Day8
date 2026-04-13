@@ -20,6 +20,7 @@ A/B Rule (từ slide):
 import re
 import json
 import csv
+import argparse
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime
@@ -30,6 +31,7 @@ from rag_answer import rag_answer
 # =============================================================================
 
 TEST_QUESTIONS_PATH = Path(__file__).parent / "data" / "test_questions.json"
+GRADING_QUESTIONS_PATH = Path(__file__).parent / "data" / "grading_questions.json"
 RESULTS_DIR = Path(__file__).parent / "results"
 
 # Cấu hình baseline (Sprint 2)
@@ -234,6 +236,7 @@ def run_scorecard(
     if test_questions is None:
         with open(TEST_QUESTIONS_PATH, "r", encoding="utf-8") as f:
             test_questions = json.load(f)
+    test_questions = test_questions or []
 
     results = []
     label = config.get("label", "unnamed")
@@ -309,6 +312,37 @@ def run_scorecard(
         print(f"\nAverage {metric}: {avg:.2f}" if avg else f"\nAverage {metric}: N/A (chưa chấm)")
 
     return results
+
+
+# =============================================================================
+# QUESTION LOADER
+# =============================================================================
+
+def load_questions(questions_path: Path, verbose: bool = True) -> List[Dict[str, Any]]:
+    """
+    Load danh sách câu hỏi từ JSON file.
+    """
+    if verbose:
+        print(f"\nLoading questions từ: {questions_path}")
+
+    try:
+        with open(questions_path, "r", encoding="utf-8") as f:
+            questions = json.load(f)
+        if verbose:
+            print(f"Tìm thấy {len(questions)} câu hỏi")
+            for q in questions[:3]:
+                print(f"  [{q['id']}] {q['question']} ({q.get('category', 'N/A')})")
+            if len(questions) > 3:
+                print("  ...")
+        return questions
+    except FileNotFoundError:
+        if verbose:
+            print(f"Không tìm thấy file: {questions_path}")
+        return []
+    except json.JSONDecodeError as e:
+        if verbose:
+            print(f"Lỗi JSON trong {questions_path}: {e}")
+        return []
 
 
 # =============================================================================
@@ -443,69 +477,82 @@ Generated: {timestamp}
 # =============================================================================
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Run RAG evaluation scorecards")
+    parser.add_argument(
+        "--datasets",
+        nargs="+",
+        choices=["test", "grading", "all"],
+        default=["all"],
+        help="Question sets to evaluate (default: all)",
+    )
+    args = parser.parse_args()
+
+    selected = set(args.datasets)
+    if "all" in selected:
+        selected = {"test", "grading"}
+
     print("=" * 60)
     print("Sprint 4: Evaluation & Scorecard")
     print("=" * 60)
+    print(f"Datasets được chọn: {', '.join(sorted(selected))}")
 
-    # Kiểm tra test questions
-    print(f"\nLoading test questions từ: {TEST_QUESTIONS_PATH}")
-    try:
-        with open(TEST_QUESTIONS_PATH, "r", encoding="utf-8") as f:
-            test_questions = json.load(f)
-        print(f"Tìm thấy {len(test_questions)} câu hỏi")
+    dataset_map = {
+        "test": TEST_QUESTIONS_PATH,
+        "grading": GRADING_QUESTIONS_PATH,
+    }
 
-        # In preview
-        for q in test_questions[:3]:
-            print(f"  [{q['id']}] {q['question']} ({q['category']})")
-        print("  ...")
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    except FileNotFoundError:
-        print("Không tìm thấy file test_questions.json!")
-        test_questions = []
+    for dataset_name in sorted(selected):
+        questions_path = dataset_map[dataset_name]
+        questions = load_questions(questions_path, verbose=True)
+        if not questions:
+            print(f"Bỏ qua dataset '{dataset_name}' vì không có câu hỏi hợp lệ.")
+            continue
 
-    # --- Chạy Baseline ---
-    print("\n--- Chạy Baseline ---")
-    print("Lưu ý: Cần hoàn thành Sprint 2 trước khi chạy scorecard!")
-    try:
-        baseline_results = run_scorecard(
-            config=BASELINE_CONFIG,
-            test_questions=test_questions,
-            verbose=True,
-        )
+        print(f"\n{'#' * 70}")
+        print(f"Dataset: {dataset_name}")
+        print('#' * 70)
 
-        # Save scorecard
-        RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-        baseline_md = generate_scorecard_summary(baseline_results, "baseline_dense")
-        scorecard_path = RESULTS_DIR / "scorecard_baseline.md"
-        scorecard_path.write_text(baseline_md, encoding="utf-8")
-        print(f"\nScorecard lưu tại: {scorecard_path}")
+        print("\n--- Chạy Baseline ---")
+        print("Lưu ý: Cần hoàn thành Sprint 2 trước khi chạy scorecard!")
+        try:
+            baseline_results = run_scorecard(
+                config=BASELINE_CONFIG,
+                test_questions=questions,
+                verbose=True,
+            )
+            baseline_label = f"{dataset_name}_{BASELINE_CONFIG['label']}"
+            baseline_md = generate_scorecard_summary(baseline_results, baseline_label)
+            baseline_path = RESULTS_DIR / f"scorecard_{dataset_name}_baseline.md"
+            baseline_path.write_text(baseline_md, encoding="utf-8")
+            print(f"\nScorecard baseline lưu tại: {baseline_path}")
+        except Exception as e:
+            print(f"Lỗi khi chạy baseline ({dataset_name}): {e}")
+            baseline_results = []
 
-    except Exception as e:
-        print(f"Lỗi khi chạy baseline: {e}")
-        baseline_results = []
+        print("\n--- Chạy Variant ---")
+        try:
+            variant_results = run_scorecard(
+                config=VARIANT_CONFIG,
+                test_questions=questions,
+                verbose=True,
+            )
+            variant_label = f"{dataset_name}_{VARIANT_CONFIG['label']}"
+            variant_md = generate_scorecard_summary(variant_results, variant_label)
+            variant_path = RESULTS_DIR / f"scorecard_{dataset_name}_variant.md"
+            variant_path.write_text(variant_md, encoding="utf-8")
+            print(f"Scorecard variant lưu tại: {variant_path}")
+        except Exception as e:
+            print(f"Lỗi khi chạy variant ({dataset_name}): {e}")
+            variant_results = []
 
-    # --- Chạy Variant ---
-    print("\n--- Chạy Variant ---")
-    try:
-        variant_results = run_scorecard(
-            config=VARIANT_CONFIG,
-            test_questions=test_questions,
-            verbose=True,
-        )
-        variant_md = generate_scorecard_summary(variant_results, VARIANT_CONFIG["label"])
-        (RESULTS_DIR / "scorecard_variant.md").write_text(variant_md, encoding="utf-8")
-        print(f"Scorecard variant lưu tại: results/scorecard_variant.md")
-    except Exception as e:
-        print(f"Lỗi khi chạy variant: {e}")
-        variant_results = []
-
-    # --- A/B Comparison ---
-    if baseline_results and variant_results:
-        compare_ab(
-            baseline_results,
-            variant_results,
-            output_csv="ab_comparison.csv"
-        )
+        if baseline_results and variant_results:
+            compare_ab(
+                baseline_results,
+                variant_results,
+                output_csv=f"ab_comparison_{dataset_name}.csv"
+            )
 
     print("\n\nViệc cần làm Sprint 4:")
     print("  1. Hoàn thành Sprint 2 + 3 trước")

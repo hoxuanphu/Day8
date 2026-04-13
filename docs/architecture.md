@@ -18,7 +18,7 @@
 ```
 
 **Mô tả ngắn gọn:**
-Hệ thống RAG (Retrieval-Augmented Generation) được thiết kế để hỗ trợ tra cứu thông tin nội bộ của công ty (Chính sách hoàn tiền, SLA, Quy trình IT, Nội quy nhân sự). Hệ thống giúp nhân viên tìm kiếm câu trả lời nhanh chóng, chính xác và có nguồn trích dẫn (citation) rõ ràng, giảm tải cho các bộ phận hỗ trợ.
+Hệ thống RAG được thiết kế để hỗ trợ tra cứu thông tin nội bộ của công ty (Chính sách hoàn tiền, SLA, Quy trình IT, Nội quy nhân sự). Hệ thống giúp nhân viên tìm kiếm câu trả lời nhanh chóng, chính xác và có nguồn trích dẫn (citation) rõ ràng, giảm tải cho các bộ phận hỗ trợ.
 
 
 ---

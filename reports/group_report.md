@@ -6,7 +6,7 @@
 |-----|---------|-------|
 | Phạm Anh Quân | Tech Lead / Retrieval Owner | hquan123cp04@gmail.com |
 | Đào Danh Đăng Phụng  | Eval Owner | phung352100@gmail.com |
-| Hồ Xuân Phú | Documentation Owner | [Email 3] |
+| Hồ Xuân Phú | Documentation Owner | hoxuanphu.stmn@gmail.com |
 
 **Ngày nộp:** 13/04/2026  
 **Repo:** https://github.com/hoxuanphu/Day8.git  

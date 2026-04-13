@@ -6,7 +6,7 @@
 |-----|---------|-------|
 | Phạm Anh Quân | Tech Lead / Retrieval Owner | hquan123cp04@gmail.com |
 | [Thành viên 2] | Eval Owner | [Email 2] |
-| [Thành viên 3] | Documentation Owner | [Email 3] |
+| Hồ Xuân Phú | Documentation Owner | [Email 3] |
 
 **Ngày nộp:** 13/04/2026  
 **Repo:** https://github.com/hoxuanphu/Day8.git  
@@ -91,7 +91,7 @@ Tại câu hỏi `q07` (Approval Matrix), điểm **Completeness** tăng từ **
 |------------|-------------|--------|
 | Phạm Anh Quân | Thiết kế kiến trúc, triển khai Indexing, Hybrid Search, Reranker | 1, 2, 3 |
 | [Thành viên 2] | Xây dựng bộ chấm điểm LLM-as-Judge, chạy Evaluation | 4 |
-| [Thành viên 3] | Viết Documentation, chuẩn bị báo cáo nhóm | 4 |
+| Hồ Xuân Phú | Viết Documentation, chuẩn bị báo cáo nhóm | 4 |
 
 **Điều nhóm làm tốt:**
 Sự phối hợp giữa bộ phận Retrieval và Eval rất nhịp nhàng. Khi Eval Owner phát hiện điểm yếu của hệ thống ở các câu hỏi Alias, Retrieval Owner đã ngay lập tức phản hồi bằng cách triển khai Reranker để khắc phục.

@@ -5,7 +5,7 @@
 | Tên | Vai trò | Email |
 |-----|---------|-------|
 | Phạm Anh Quân | Tech Lead / Retrieval Owner | hquan123cp04@gmail.com |
-| [Thành viên 2] | Eval Owner | [Email 2] |
+| Đào Danh Đăng Phụng  | Eval Owner | phung352100@gmail.com |
 | Hồ Xuân Phú | Documentation Owner | [Email 3] |
 
 **Ngày nộp:** 13/04/2026  
@@ -71,15 +71,26 @@ Tại câu hỏi `q07` (Approval Matrix), điểm **Completeness** tăng từ **
 
 **Biến đã thay đổi (chỉ 1 biến):** Retrieval Logic (Dense Only vs Hybrid + Rerank)
 
+**Kết quả trên test_questions (q01-q10):**
+
 | Metric | Baseline | Variant | Delta |
 |--------|---------|---------|-------|
-| Faithfulness |  |  |  |
-| Answer Relevance |  |  |  |
-| Context Recall |  |  |  |
-| Completeness |  |  |  |
+| Faithfulness | 4.80/5 | 4.40/5 | -0.40 |
+| Answer Relevance | 4.20/5 | 4.20/5 | +0.00 |
+| Context Recall | 5.00/5 | 5.00/5 | +0.00 |
+| Completeness | 3.60/5 | 3.20/5 | -0.40 |
+
+**Kết quả trên grading_questions (gq01-gq10):**
+
+| Metric | Baseline | Variant | Delta |
+|--------|---------|---------|-------|
+| Faithfulness | 5.00/5 | 4.60/5 | -0.40 |
+| Answer Relevance | 4.20/5 | 4.60/5 | +0.40 |
+| Context Recall | 5.00/5 | 5.00/5 | +0.00 |
+| Completeness | 3.20/5 | 3.20/5 | +0.00 |
 
 **Kết luận:**
-
+Khi so sánh trên **hai bộ dữ liệu**, Variant `hybrid + rerank` chưa tạo được cải thiện ổn định so với Baseline `dense`. Trên bộ `test_questions`, Variant giảm ở Faithfulness và Completeness, trong khi Relevance và Recall giữ nguyên. Trên bộ `grading_questions`, Variant có điểm sáng là **Relevance tăng +0.40**, nhưng lại giảm Faithfulness -0.40, còn Recall/Completeness không đổi. Như vậy, retrieval của cả hai cấu hình đều đang khá tốt (Context Recall luôn 5.00), nhưng chất lượng câu trả lời cuối vẫn thiếu nhất quán: có câu trả lời quá ngắn, có câu thêm/bớt ý so với expected answer, đặc biệt ở nhóm câu alias/insufficient-context. Kết luận thực nghiệm là biến Retrieval Logic một mình chưa đủ để nâng chất lượng tổng thể; nút thắt hiện tại nằm nhiều hơn ở tầng Generation (prompt format, rule cho câu "không đủ dữ liệu", và cách bắt buộc nêu đủ key points). Hướng tiếp theo nên giữ retrieval ổn định và tối ưu prompt theo rubric của bộ grading.
 
 ---
 
